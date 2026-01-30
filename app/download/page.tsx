@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -77,7 +79,9 @@ export default function DownloadPage() {
         setCountdown(prev => prev - 1);
       }, 1000);
     } else if (countdown === 0 && !downloadStarted) {
-      triggerDownload();
+      setTimeout(() => {
+        triggerDownload();
+      }, 0);
     }
     return () => clearTimeout(timer);
   }, [loading, countdown, downloadStarted, triggerDownload]);
@@ -119,7 +123,7 @@ export default function DownloadPage() {
               </div>
               <h1 className="text-4xl font-bold mb-4 tracking-tight">Thank you for downloading!</h1>
               <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-                Your Mac is about to get a whole lot faster. If the download didn't start automatically, <a href={downloadUrl} className="text-[#ff6b35] hover:underline font-medium">click here</a>.
+                Your Mac is about to get a whole lot faster. If the download didn&apos;t start automatically, <a href={downloadUrl} className="text-[#ff6b35] hover:underline font-medium">click here</a>.
               </p>
             </div>
           ) : (
