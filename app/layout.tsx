@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nukemymac-website.vercel.app"),
+  metadataBase: new URL("https://nukemymac.com"),
   title: {
     default: "NukeMyMac - Clean Your Mac & Free Up Storage | Mac Cleaner App",
     template: "%s | NukeMyMac",
@@ -41,6 +41,15 @@ export const metadata: Metadata = {
     "mac storage full",
     "delete junk files mac",
     "mac system cleaner",
+    "nuke my mac",
+    "macbook cleaner",
+    "mac disk cleaner",
+    "best mac cleaner 2026",
+    "mac cache cleaner",
+    "mac memory cleaner",
+    "clear mac storage",
+    "mac startup items",
+    "remove mac apps completely",
   ],
   authors: [{ name: "NukeMyMac" }],
   creator: "NukeMyMac",
@@ -59,7 +68,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nukemymac-website.vercel.app",
+    url: "https://nukemymac.com",
     siteName: "NukeMyMac",
     title: "NukeMyMac - Clean Your Mac & Free Up Storage",
     description:
@@ -79,6 +88,7 @@ export const metadata: Metadata = {
     description:
       "Remove junk files, find duplicates, and speed up your Mac. Free download.",
     images: ["/og-image.png"],
+    creator: "@nukemymac",
   },
   icons: {
     icon: [
@@ -90,29 +100,72 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   alternates: {
-    canonical: "https://nukemymac-website.vercel.app",
+    canonical: "https://nukemymac.com",
   },
   category: "technology",
+  verification: {
+    google: "8d121404e6c2ed5c",
+  },
 };
 
 // JSON-LD structured data for SEO
-const jsonLd = {
+const jsonLdApp = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   name: "NukeMyMac",
   operatingSystem: "macOS",
   applicationCategory: "UtilitiesApplication",
+  url: "https://nukemymac.com",
+  downloadUrl: "https://nukemymac.com/download",
+  screenshot: "https://nukemymac.com/screenshots/dashboard.png",
+  softwareVersion: "1.0.0",
   offers: [
-    { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free" },
-    { "@type": "Offer", price: "29.99", priceCurrency: "USD", name: "Pro" },
-    { "@type": "Offer", price: "49.99", priceCurrency: "USD", name: "Lifetime" },
+    { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free Trial" },
+    { "@type": "Offer", price: "29.99", priceCurrency: "USD", name: "Pro Yearly" },
+    { "@type": "Offer", price: "49.99", priceCurrency: "USD", name: "Pro Lifetime" },
   ],
   aggregateRating: {
     "@type": "AggregateRating",
     ratingValue: "4.8",
     ratingCount: "500",
+    bestRating: "5",
+    worstRating: "1",
   },
-  description: "Mac cleaner app that removes junk files, finds duplicates, and optimizes your Mac.",
+  description: "Mac cleaner app that removes junk files, finds duplicates, uninstalls apps completely, and optimizes your Mac performance.",
+  featureList: [
+    "Smart Scan & Clean",
+    "Disk Analysis with Sunburst Chart",
+    "Space Treemap Visualization",
+    "Complete App Uninstaller",
+    "Developer Tools Cleanup",
+    "Browser Cache Manager",
+    "System Maintenance",
+    "Scheduled Scans",
+    "Performance Monitoring",
+  ],
+};
+
+const jsonLdOrg = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "NukeMyMac",
+  url: "https://nukemymac.com",
+  logo: "https://nukemymac.com/app-icon.png",
+  sameAs: [
+    "https://github.com/bumahkib7/NukeMyMac",
+  ],
+};
+
+const jsonLdWebsite = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "NukeMyMac",
+  url: "https://nukemymac.com",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://nukemymac.com/?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -125,7 +178,15 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdApp) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
         />
       </head>
       <body
