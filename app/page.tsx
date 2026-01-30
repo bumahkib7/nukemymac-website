@@ -39,9 +39,11 @@ export default function Home() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button size="sm" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white shadow-lg shadow-[#ff6b35]/20">
-                <Download className="w-4 h-4 mr-2" />
-                Free Download
+              <Button size="sm" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white shadow-lg shadow-[#ff6b35]/20" asChild>
+                <a href="/download">
+                  <Download className="w-4 h-4 mr-2" />
+                  Free Download
+                </a>
               </Button>
             </div>
           </div>
@@ -76,12 +78,14 @@ export default function Home() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button size="lg" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white font-semibold px-8 h-12 text-base shadow-xl shadow-[#ff6b35]/25">
-                <Download className="w-5 h-5 mr-2" />
-                Download Free
+              <Button size="lg" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white font-semibold px-8 h-12 text-base shadow-xl shadow-[#ff6b35]/25" asChild>
+                <a href="/download">
+                  <Download className="w-5 h-5 mr-2" />
+                  Download Free
+                </a>
               </Button>
-              <Button size="lg" variant="outline" className="font-semibold px-8 h-12 text-base bg-white/50 backdrop-blur-sm">
-                Buy Now — $29.99
+              <Button size="lg" variant="outline" className="font-semibold px-8 h-12 text-base bg-white/50 backdrop-blur-sm" asChild>
+                <a href="/checkout?plan=yearly">Buy Now — $29.99</a>
               </Button>
             </div>
 
@@ -344,6 +348,7 @@ export default function Home() {
               features={["Smart Scan & Clean", "System Maintenance", "Performance Monitor", "Scheduled Scans"]}
               buttonText="Download Free"
               buttonVariant="outline"
+              href="/download"
             />
             <PricingCard
               name="Pro"
@@ -353,6 +358,7 @@ export default function Home() {
               features={["Everything in Free", "Disk Analysis", "Duplicate Finder", "App Uninstaller", "Developer Tools", "Browser Cleanup", "Priority Support"]}
               buttonText="Get Pro"
               highlighted
+              href="/checkout?plan=yearly"
             />
             <PricingCard
               name="Lifetime"
@@ -361,6 +367,7 @@ export default function Home() {
               features={["All Pro Features", "Lifetime Updates", "Priority Support", "No Subscription", "Early Access"]}
               buttonText="Buy Lifetime"
               buttonVariant="outline"
+              href="/checkout?plan=lifetime"
             />
           </div>
         </div>
@@ -384,9 +391,11 @@ export default function Home() {
             Join thousands of users who have reclaimed their storage and sped up their Macs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button size="lg" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white font-semibold px-8 h-12 shadow-xl shadow-[#ff6b35]/25">
-              <Download className="w-5 h-5 mr-2" />
-              Download for Free
+            <Button size="lg" className="bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white font-semibold px-8 h-12 shadow-xl shadow-[#ff6b35]/25" asChild>
+              <a href="/download">
+                <Download className="w-5 h-5 mr-2" />
+                Download for Free
+              </a>
             </Button>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
@@ -414,7 +423,7 @@ export default function Home() {
           </div>
           <Separator className="mb-8" />
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>&copy; 2025 NukeMyMac. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} NukeMyMac. All rights reserved.</p>
             <p>Made with care for Mac users everywhere.</p>
           </div>
         </div>
@@ -560,6 +569,7 @@ function PricingCard({
   buttonText,
   buttonVariant,
   highlighted,
+  href,
 }: {
   name: string;
   price: string;
@@ -569,6 +579,7 @@ function PricingCard({
   buttonText: string;
   buttonVariant?: "outline" | "default";
   highlighted?: boolean;
+  href?: string;
 }) {
   return (
     <Card className={`relative ${highlighted ? 'border-[#ff6b35] shadow-xl shadow-[#ff6b35]/10' : 'border-border/50'} bg-white`}>
@@ -597,8 +608,9 @@ function PricingCard({
         <Button
           variant={buttonVariant || "default"}
           className={`w-full ${!buttonVariant ? 'bg-gradient-to-r from-[#ff6b35] to-[#ff8f5a] hover:opacity-90 text-white' : ''}`}
+          asChild={!!href}
         >
-          {buttonText}
+          {href ? <a href={href}>{buttonText}</a> : buttonText}
         </Button>
       </CardContent>
     </Card>
