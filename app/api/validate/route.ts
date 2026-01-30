@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLicenseByKey, validateLicenseKey, activateLicense } from '@/lib/license';
+import { getLicenseByKey, validateLicenseKey, activateLicense, checkLicenseValidity } from '@/lib/license';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { key, activate } = body as { key: string; activate?: boolean };
+    const { key, activate, machineId } = body as {
+      key: string;
+      activate?: boolean;
+      machineId?: string;
+    };
 
     if (!key) {
       return NextResponse.json(
@@ -13,8 +17,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const normalizedKey = key.toUpperCase().trim();
+
     // First, validate the key format and extract tier
-    const formatValidation = validateLicenseKey(key.toUpperCase().trim());
+    const formatValidation = validateLicenseKey(normalizedKey);
 
     if (!formatValidation.valid) {
       return NextResponse.json({
@@ -23,28 +29,37 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if key exists in our database
-    const license = await getLicenseByKey(key.toUpperCase().trim());
+    // Check if key exists and is valid
+    const validity = await checkLicenseValidity(normalizedKey);
 
-    if (!license) {
-      // Key format is valid but not in our database
-      // This could be a forged key or from a different system
+    if (!validity.valid) {
       return NextResponse.json({
         valid: false,
-        error: 'License key not found',
+        error: validity.error || 'License key not found',
       });
     }
 
-    // If activation requested, mark it
-    if (activate && !license.activated) {
-      await activateLicense(license.key);
+    // If activation requested, activate with optional machine ID
+    if (activate) {
+      const activationResult = await activateLicense(normalizedKey, machineId);
+
+      if (!activationResult.success) {
+        return NextResponse.json({
+          valid: false,
+          error: activationResult.error,
+        });
+      }
     }
+
+    // Get full license details
+    const license = await getLicenseByKey(normalizedKey);
 
     return NextResponse.json({
       valid: true,
-      tier: license.tier,
-      activated: license.activated || activate,
-      createdAt: license.createdAt,
+      tier: validity.tier,
+      activated: license?.activated || activate,
+      createdAt: license?.createdAt,
+      expiresAt: validity.expiresAt,
     });
   } catch (error) {
     console.error('Validation error:', error);

@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// License keys generated after successful payments
+model License {
+  id              String    @id @default(cuid())
+  key             String    @unique // NUKE-XXXX-XXXX-XXXX-XXXX
+  email           String
+  tier            LicenseTier
+  status          LicenseStatus @default(ACTIVE)
+
+  // Stripe info
+  stripeSessionId String?   @unique
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+
+  // Activation tracking
+  activatedAt     DateTime?
+  activationCount Int       @default(0)
+  maxActivations  Int       @default(3)
+  machineIds      String[]  // Hardware IDs of activated machines
+
+  // Dates
+  createdAt       DateTime  @default(now())
+  expiresAt       DateTime? // null for lifetime
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  transactions    Transaction[]
+
+  @@index([email])
+  @@index([stripeCustomerId])
+}
+
+enum LicenseTier {
+  YEARLY
+  LIFETIME
+}
+
+enum LicenseStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  REFUNDED
+}
+
+// Payment transactions
+model Transaction {
+  id              String    @id @default(cuid())
+  licenseId       String
+  license         License   @relation(fields: [licenseId], references: [id])
+
+  // Stripe info
+  stripePaymentId String    @unique
+  amount          Int       // in cents
+  currency        String    @default("usd")
+  status          TransactionStatus
+
+  // Metadata
+  description     String?
+  metadata        Json?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([licenseId])
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// Download tracking
+model Download {
+  id          String    @id @default(cuid())
+  version     String
+  platform    String    @default("macos")
+  ipAddress   String?
+  userAgent   String?
+  country     String?
+  referrer    String?
+  createdAt   DateTime  @default(now())
+
+  @@index([version])
+  @@index([createdAt])
+}
+
+// Analytics events
+model AnalyticsEvent {
+  id          String    @id @default(cuid())
+  event       String    // page_view, download_click, checkout_start, etc.
+  page        String?
+  metadata    Json?
+  sessionId   String?
+  ipAddress   String?
+  userAgent   String?
+  country     String?
+  createdAt   DateTime  @default(now())
+
+  @@index([event])
+  @@index([createdAt])
+}
+
+// Feature requests / feedback
+model Feedback {
+  id          String    @id @default(cuid())
+  email       String?
+  type        FeedbackType
+  message     String
+  macosVersion String?
+  appVersion  String?
+  status      FeedbackStatus @default(NEW)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+enum FeedbackType {
+  BUG
+  FEATURE_REQUEST
+  GENERAL
+  SUPPORT
+}
+
+enum FeedbackStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}

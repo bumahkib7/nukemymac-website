@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
-import path from 'path';
 import crypto from 'crypto';
+import prisma from './db';
+import { LicenseTier as PrismaLicenseTier, LicenseStatus } from '@prisma/client';
 
 export type LicenseTier = 'yearly' | 'lifetime';
 
@@ -12,40 +12,7 @@ export interface License {
   stripeSessionId: string;
   activated: boolean;
   activatedAt?: string;
-}
-
-interface LicenseStore {
-  licenses: License[];
-}
-
-const DATA_DIR = path.join(process.cwd(), 'data');
-const LICENSES_FILE = path.join(DATA_DIR, 'licenses.json');
-
-// Ensure data directory and file exist
-async function ensureDataFile(): Promise<void> {
-  try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch {
-    // Directory exists
-  }
-
-  try {
-    await fs.access(LICENSES_FILE);
-  } catch {
-    // File doesn't exist, create it
-    await fs.writeFile(LICENSES_FILE, JSON.stringify({ licenses: [] }, null, 2));
-  }
-}
-
-async function readLicenses(): Promise<LicenseStore> {
-  await ensureDataFile();
-  const data = await fs.readFile(LICENSES_FILE, 'utf-8');
-  return JSON.parse(data);
-}
-
-async function writeLicenses(store: LicenseStore): Promise<void> {
-  await ensureDataFile();
-  await fs.writeFile(LICENSES_FILE, JSON.stringify(store, null, 2));
+  expiresAt?: string;
 }
 
 /**
@@ -106,15 +73,17 @@ export function validateLicenseKey(key: string): { valid: boolean; tier?: Licens
 
   const tier: LicenseTier = tierChar === 'Y' ? 'yearly' : 'lifetime';
 
-  // Verify checksum
-  const keyWithoutChecksum = key.slice(0, -1) + 'X'; // Replace last char with X
-  const baseKey = `NUKE-${segments[1]}-${segments[2]}-${segments[3]}-${segments[4].slice(0, 3)}X`;
-  const expectedChecksum = generateChecksum(baseKey.slice(0, -1) + segments[4][3]);
-
-  // For simplicity, we'll just validate the format and tier encoding
-  // In production, you might want a more robust checksum validation
-
   return { valid: true, tier };
+}
+
+// Convert string tier to Prisma enum
+function toPrismaTier(tier: LicenseTier): PrismaLicenseTier {
+  return tier === 'yearly' ? 'YEARLY' : 'LIFETIME';
+}
+
+// Convert Prisma enum to string tier
+function fromPrismaTier(tier: PrismaLicenseTier): LicenseTier {
+  return tier === 'YEARLY' ? 'yearly' : 'lifetime';
 }
 
 /**
@@ -123,61 +92,252 @@ export function validateLicenseKey(key: string): { valid: boolean; tier?: Licens
 export async function createLicense(
   tier: LicenseTier,
   email: string,
-  stripeSessionId: string
+  stripeSessionId: string,
+  stripeCustomerId?: string
 ): Promise<License> {
-  const store = await readLicenses();
-
   // Check if we already have a license for this session (idempotency)
-  const existing = store.licenses.find(l => l.stripeSessionId === stripeSessionId);
+  const existing = await prisma.license.findUnique({
+    where: { stripeSessionId },
+  });
+
   if (existing) {
-    return existing;
+    return {
+      key: existing.key,
+      tier: fromPrismaTier(existing.tier),
+      email: existing.email,
+      createdAt: existing.createdAt.toISOString(),
+      stripeSessionId: existing.stripeSessionId || '',
+      activated: existing.activationCount > 0,
+      activatedAt: existing.activatedAt?.toISOString(),
+      expiresAt: existing.expiresAt?.toISOString(),
+    };
   }
 
-  const license: License = {
-    key: generateLicenseKey(tier),
-    tier,
-    email,
-    createdAt: new Date().toISOString(),
-    stripeSessionId,
+  // Calculate expiration date for yearly licenses
+  const expiresAt = tier === 'yearly'
+    ? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+    : null;
+
+  const license = await prisma.license.create({
+    data: {
+      key: generateLicenseKey(tier),
+      tier: toPrismaTier(tier),
+      email,
+      stripeSessionId,
+      stripeCustomerId,
+      expiresAt,
+    },
+  });
+
+  return {
+    key: license.key,
+    tier: fromPrismaTier(license.tier),
+    email: license.email,
+    createdAt: license.createdAt.toISOString(),
+    stripeSessionId: license.stripeSessionId || '',
     activated: false,
+    expiresAt: license.expiresAt?.toISOString(),
   };
-
-  store.licenses.push(license);
-  await writeLicenses(store);
-
-  return license;
 }
 
 /**
  * Get a license by key
  */
 export async function getLicenseByKey(key: string): Promise<License | null> {
-  const store = await readLicenses();
-  return store.licenses.find(l => l.key === key) || null;
+  const license = await prisma.license.findUnique({
+    where: { key },
+  });
+
+  if (!license) return null;
+
+  return {
+    key: license.key,
+    tier: fromPrismaTier(license.tier),
+    email: license.email,
+    createdAt: license.createdAt.toISOString(),
+    stripeSessionId: license.stripeSessionId || '',
+    activated: license.activationCount > 0,
+    activatedAt: license.activatedAt?.toISOString(),
+    expiresAt: license.expiresAt?.toISOString(),
+  };
 }
 
 /**
  * Get a license by Stripe session ID
  */
 export async function getLicenseBySessionId(sessionId: string): Promise<License | null> {
-  const store = await readLicenses();
-  return store.licenses.find(l => l.stripeSessionId === sessionId) || null;
+  const license = await prisma.license.findUnique({
+    where: { stripeSessionId: sessionId },
+  });
+
+  if (!license) return null;
+
+  return {
+    key: license.key,
+    tier: fromPrismaTier(license.tier),
+    email: license.email,
+    createdAt: license.createdAt.toISOString(),
+    stripeSessionId: license.stripeSessionId || '',
+    activated: license.activationCount > 0,
+    activatedAt: license.activatedAt?.toISOString(),
+    expiresAt: license.expiresAt?.toISOString(),
+  };
 }
 
 /**
- * Mark a license as activated
+ * Activate a license for a machine
  */
-export async function activateLicense(key: string): Promise<boolean> {
-  const store = await readLicenses();
-  const license = store.licenses.find(l => l.key === key);
+export async function activateLicense(key: string, machineId?: string): Promise<{
+  success: boolean;
+  error?: string;
+  tier?: LicenseTier;
+}> {
+  const license = await prisma.license.findUnique({
+    where: { key },
+  });
 
   if (!license) {
-    return false;
+    return { success: false, error: 'License not found' };
   }
 
-  license.activated = true;
-  license.activatedAt = new Date().toISOString();
-  await writeLicenses(store);
+  // Check if license is active
+  if (license.status !== 'ACTIVE') {
+    return { success: false, error: `License is ${license.status.toLowerCase()}` };
+  }
 
-  return true;
+  // Check if license is expired
+  if (license.expiresAt && license.expiresAt < new Date()) {
+    await prisma.license.update({
+      where: { key },
+      data: { status: 'EXPIRED' },
+    });
+    return { success: false, error: 'License has expired' };
+  }
+
+  // Check activation limit (if machineId provided)
+  if (machineId) {
+    // Check if this machine is already activated
+    if (license.machineIds.includes(machineId)) {
+      return { success: true, tier: fromPrismaTier(license.tier) };
+    }
+
+    // Check if we've reached the activation limit
+    if (license.activationCount >= license.maxActivations) {
+      return { success: false, error: 'Maximum activations reached' };
+    }
+
+    // Add machine ID and increment count
+    await prisma.license.update({
+      where: { key },
+      data: {
+        machineIds: { push: machineId },
+        activationCount: { increment: 1 },
+        activatedAt: license.activatedAt || new Date(),
+      },
+    });
+  } else {
+    // Just mark as activated without machine tracking
+    await prisma.license.update({
+      where: { key },
+      data: {
+        activationCount: { increment: 1 },
+        activatedAt: license.activatedAt || new Date(),
+      },
+    });
+  }
+
+  return { success: true, tier: fromPrismaTier(license.tier) };
+}
+
+/**
+ * Check if a license is valid (not expired, active status)
+ */
+export async function checkLicenseValidity(key: string): Promise<{
+  valid: boolean;
+  tier?: LicenseTier;
+  expiresAt?: string;
+  error?: string;
+}> {
+  const license = await prisma.license.findUnique({
+    where: { key },
+  });
+
+  if (!license) {
+    return { valid: false, error: 'License not found' };
+  }
+
+  if (license.status !== 'ACTIVE') {
+    return { valid: false, error: `License is ${license.status.toLowerCase()}` };
+  }
+
+  if (license.expiresAt && license.expiresAt < new Date()) {
+    return { valid: false, error: 'License has expired' };
+  }
+
+  return {
+    valid: true,
+    tier: fromPrismaTier(license.tier),
+    expiresAt: license.expiresAt?.toISOString(),
+  };
+}
+
+/**
+ * Revoke a license
+ */
+export async function revokeLicense(key: string): Promise<boolean> {
+  try {
+    await prisma.license.update({
+      where: { key },
+      data: { status: 'REVOKED' },
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Track a download
+ */
+export async function trackDownload(data: {
+  version: string;
+  ipAddress?: string;
+  userAgent?: string;
+  country?: string;
+  referrer?: string;
+}): Promise<void> {
+  await prisma.download.create({
+    data: {
+      version: data.version,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+      country: data.country,
+      referrer: data.referrer,
+    },
+  });
+}
+
+/**
+ * Track an analytics event
+ */
+export async function trackEvent(data: {
+  event: string;
+  page?: string;
+  metadata?: Record<string, unknown>;
+  sessionId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  country?: string;
+}): Promise<void> {
+  await prisma.analyticsEvent.create({
+    data: {
+      event: data.event,
+      page: data.page,
+      metadata: data.metadata || {},
+      sessionId: data.sessionId,
+      ipAddress: data.ipAddress,
+      userAgent: data.userAgent,
+      country: data.country,
+    },
+  });
 }
