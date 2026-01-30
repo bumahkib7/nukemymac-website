@@ -333,7 +333,7 @@ export async function trackEvent(data: {
     data: {
       event: data.event,
       page: data.page,
-      metadata: data.metadata || {},
+      metadata: data.metadata ? JSON.parse(JSON.stringify(data.metadata)) : undefined,
       sessionId: data.sessionId,
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
