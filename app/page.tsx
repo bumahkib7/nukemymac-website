@@ -10,13 +10,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+/* 
+// Commented out Reviews/Carousel as per user feedback
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "@/components/ui/carousel"; 
+*/
 import {
   Sheet,
   SheetContent,
@@ -24,6 +27,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Download,
   Apple,
@@ -33,41 +43,23 @@ import {
   Users,
   Sparkles,
   Menu,
-  Zap,
   Trash2,
   HardDrive,
-  Cpu,
+  ZoomIn,
 } from "lucide-react";
 import Image from "next/image";
 
 export default function Home() {
+  /*
   const reviews = [
     {
       quote: "Recovered 47GB on my MacBook Pro. This app actually finds stuff other cleaners miss.",
       author: "Sarah M.",
       role: "Designer",
     },
-    {
-      quote: "Finally, a cleaner that doesn't feel like bloatware. Fast, clean interface, does exactly what it says.",
-      author: "James K.",
-      role: "Developer",
-    },
-    {
-      quote: "The duplicate finder alone saved me hours. Found thousands of duplicate photos.",
-      author: "Michael R.",
-      role: "Photographer",
-    },
-    {
-      quote: "My Mac M1 feels brand new again. The developer tools cleanup is a lifesaver.",
-      author: "David L.",
-      role: "Software Engineer",
-    },
-    {
-      quote: "Simple, effective, and beautiful. Worth every penny for the lifetime license.",
-      author: "Emma S.",
-      role: "Writer",
-    },
+    ...
   ];
+  */
 
   const faqs = [
     {
@@ -203,12 +195,8 @@ export default function Home() {
                 Apple Notarized
               </span>
               <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50">
-                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-                4.8/5 Rating
-              </span>
-              <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/50">
                 <Users className="w-4 h-4 text-blue-500" />
-                50K+ Users
+                Join early adopters
               </span>
             </div>
           </div>
@@ -265,10 +253,10 @@ export default function Home() {
       <section className="py-12 border-y border-border/50 bg-secondary/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <StatItem value="50GB+" label="Space recovered avg" icon={<HardDrive className="w-4 h-4 text-[#ff6b35]" />} />
-            <StatItem value="2M+" label="Files cleaned monthly" icon={<Trash2 className="w-4 h-4 text-[#ff6b35]" />} />
-            <StatItem value="50K+" label="Happy users" icon={<Users className="w-4 h-4 text-[#ff6b35]" />} />
-            <StatItem value="4.8" label="App Store rating" icon={<Star className="w-4 h-4 text-amber-500 fill-amber-500" />} />
+            <StatItem value="50GB+" label="Recover space" icon={<HardDrive className="w-4 h-4 text-[#ff6b35]" />} />
+            <StatItem value="Fast" label="Scanning engine" icon={<Trash2 className="w-4 h-4 text-[#ff6b35]" />} />
+            <StatItem value="Native" label="Apple Silicon" icon={<Users className="w-4 h-4 text-[#ff6b35]" />} />
+            <StatItem value="Safe" label="System protection" icon={<Shield className="w-4 h-4 text-green-500" />} />
           </div>
         </div>
       </section>
@@ -283,7 +271,7 @@ export default function Home() {
               <span className="text-[#ff6b35]">beautiful interface</span>
             </h2>
             <p className="text-lg text-muted-foreground">
-              Every tool is designed to make your Mac maintenance effortless, native, and fast.
+              Every tool is designed to make your Mac maintenance effortless, native, and fast. Click images to zoom.
             </p>
           </div>
 
@@ -410,43 +398,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Reviews Section - Carousel */}
+      {/* Reviews Section - HIDDEN */}
+      {/* 
       <section id="reviews" className="py-24 bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <Badge className="mb-4 bg-[#ff6b35]/10 text-[#ff6b35] border-0">Reviews</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Loved by Mac users
-            </h2>
-            <div className="flex items-center justify-center gap-1 mb-2">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 text-amber-500 fill-amber-500" />
-              ))}
-            </div>
-            <p className="text-muted-foreground">4.8 out of 5 based on 500+ reviews</p>
-          </div>
-
-          <div className="px-8">
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full max-w-5xl mx-auto"
-            >
-              <CarouselContent>
-                {reviews.map((review, i) => (
-                  <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3 p-2">
-                    <ReviewCard {...review} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
-        </div>
+        ...
       </section>
+      */}
 
       {/* FAQ Section - Accordion */}
       <section id="faq" className="py-24 bg-secondary/30">
@@ -575,7 +532,6 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} NukeMyMac. All rights reserved.</p>
             <div className="flex items-center gap-4">
-               {/* Socials or other links could go here */}
                <p>Made with ❤️ for Mac users.</p>
             </div>
           </div>
@@ -643,18 +599,40 @@ function FeatureShowcase({
         )}
       </div>
 
-      {/* Screenshot with glassmorphism */}
+      {/* Screenshot with glassmorphism and Lightbox */}
       <div className="flex-1 relative w-full">
         <div className={`absolute -inset-4 bg-gradient-to-br from-[#ff6b35]/20 to-blue-500/20 rounded-[2rem] blur-3xl -z-10 opacity-50 ${reverse ? 'left-0' : 'right-0'}`} />
-        <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/50 bg-slate-900 ring-1 ring-white/10 dark:border-white/10">
-          <Image
-            src={imageSrc}
-            alt={imageAlt}
-            width={1920}
-            height={1080}
-            className="w-full h-auto transition-transform duration-700 hover:scale-[1.02]"
-          />
-        </div>
+        
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="rounded-2xl overflow-hidden shadow-2xl border border-white/50 bg-slate-900 ring-1 ring-white/10 dark:border-white/10 cursor-zoom-in group relative">
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
+                 <div className="bg-black/50 backdrop-blur-md text-white px-4 py-2 rounded-full flex items-center gap-2">
+                    <ZoomIn className="w-4 h-4" />
+                    <span className="text-sm font-medium">Zoom</span>
+                 </div>
+              </div>
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                width={1920}
+                height={1080}
+                className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.02]"
+              />
+            </div>
+          </DialogTrigger>
+          <DialogContent className="max-w-[90vw] w-full p-0 border-0 bg-transparent shadow-none">
+             <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10">
+               <Image
+                src={imageSrc}
+                alt={imageAlt}
+                fill
+                className="object-contain"
+              />
+             </div>
+          </DialogContent>
+        </Dialog>
+
       </div>
     </div>
   );
@@ -675,54 +653,58 @@ function FeatureBox({
   onClick?: () => void;
 }) {
   return (
-    <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-border/50 bg-card hover:border-[#ff6b35]/30 h-full cursor-pointer">
-      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          fill
-          className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
-        />
-        {badge && (
-          <div className="absolute top-3 right-3 z-20">
-            <Badge className="bg-[#ff6b35] text-white border-0 shadow-sm">{badge}</Badge>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Card className="group overflow-hidden hover:shadow-2xl transition-all duration-300 border-border/50 bg-card hover:border-[#ff6b35]/30 h-full cursor-pointer">
+          <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
+            
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                 <div className="bg-black/50 backdrop-blur-md text-white px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <ZoomIn className="w-3 h-3" />
+                    <span className="text-xs font-medium">View</span>
+                 </div>
+            </div>
+
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              fill
+              className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
+            />
+            {badge && (
+              <div className="absolute top-3 right-3 z-20">
+                <Badge className="bg-[#ff6b35] text-white border-0 shadow-sm">{badge}</Badge>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <CardContent className="p-6">
-        <h3 className="font-bold text-xl mb-2 group-hover:text-[#ff6b35] transition-colors flex items-center gap-2">
-          {title}
-        </h3>
-        <p className="text-muted-foreground leading-relaxed">{description}</p>
-      </CardContent>
-    </Card>
+          <CardContent className="p-6">
+            <h3 className="font-bold text-xl mb-2 group-hover:text-[#ff6b35] transition-colors flex items-center gap-2">
+              {title}
+            </h3>
+            <p className="text-muted-foreground leading-relaxed">{description}</p>
+          </CardContent>
+        </Card>
+      </DialogTrigger>
+      <DialogContent className="max-w-[80vw] w-full p-0 border-0 bg-transparent shadow-none">
+         <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-2xl ring-1 ring-white/10">
+           <Image
+            src={imageSrc}
+            alt={imageAlt}
+            fill
+            className="object-contain"
+          />
+         </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
+/* 
 function ReviewCard({ quote, author, role }: { quote: string; author: string; role: string }) {
-  return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50 h-full hover:shadow-lg transition-all hover:border-[#ff6b35]/20">
-      <CardContent className="p-8 flex flex-col h-full">
-        <div className="flex gap-0.5 mb-6">
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} className="w-4 h-4 text-amber-500 fill-amber-500" />
-          ))}
-        </div>
-        <p className="text-foreground text-lg mb-6 leading-relaxed flex-grow">&ldquo;{quote}&rdquo;</p>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff6b35] to-[#ff9f7a] flex items-center justify-center text-white font-bold">
-            {author.charAt(0)}
-          </div>
-          <div>
-            <p className="font-bold text-sm">{author}</p>
-            <p className="text-xs text-muted-foreground">{role}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+  ...
+} 
+*/
 
 function PricingCard({
   name,
