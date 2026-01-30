@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = 'NukeMyMac <noreply@resend.dev>';
+const FROM_EMAIL = 'NukeMyMac <noreply@fleetcopilots.com>';
 
 export async function sendLicenseEmail(params: {
   to: string;
