@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getStripe } from '@/lib/stripe';
 import { createLicense, LicenseTier } from '@/lib/license';
+import { sendLicenseEmail } from '@/lib/email';
 import Stripe from 'stripe';
 
 export async function POST(request: NextRequest) {
@@ -46,13 +47,11 @@ export async function POST(request: NextRequest) {
 
     case 'customer.subscription.created':
     case 'customer.subscription.updated': {
-      // Handle subscription updates if needed
       console.log(`Subscription event: ${event.type}`);
       break;
     }
 
     case 'customer.subscription.deleted': {
-      // Handle subscription cancellation
       console.log('Subscription cancelled');
       break;
     }
@@ -80,4 +79,18 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   // Create license key
   const license = await createLicense(plan, email, session.id);
   console.log(`License created: ${license.key} for ${email} (${plan})`);
+
+  // Send license email
+  const emailResult = await sendLicenseEmail({
+    to: email,
+    licenseKey: license.key,
+    tier: license.tier,
+    expiresAt: license.expiresAt,
+  });
+
+  if (emailResult.success) {
+    console.log(`License email sent to ${email}`);
+  } else {
+    console.error(`Failed to send license email to ${email}`);
+  }
 }
