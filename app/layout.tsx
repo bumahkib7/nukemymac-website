@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://nukemymac.com"),
+  metadataBase: new URL("https://nukemymac-website.vercel.app"),
   title: {
     default: "NukeMyMac - Clean Your Mac & Free Up Storage | Mac Cleaner App",
     template: "%s | NukeMyMac",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://nukemymac.com",
+    url: "https://nukemymac-website.vercel.app",
     siteName: "NukeMyMac",
     title: "NukeMyMac - Clean Your Mac & Free Up Storage",
     description:
@@ -100,7 +100,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   alternates: {
-    canonical: "https://nukemymac.com",
+    canonical: "https://nukemymac-website.vercel.app",
   },
   category: "technology",
   verification: {
@@ -115,9 +115,9 @@ const jsonLdApp = {
   name: "NukeMyMac",
   operatingSystem: "macOS",
   applicationCategory: "UtilitiesApplication",
-  url: "https://nukemymac.com",
-  downloadUrl: "https://nukemymac.com/download",
-  screenshot: "https://nukemymac.com/screenshots/dashboard.png",
+  url: "https://nukemymac-website.vercel.app",
+  downloadUrl: "https://nukemymac-website.vercel.app/download",
+  screenshot: "https://nukemymac-website.vercel.app/screenshots/dashboard.png",
   softwareVersion: "1.0.0",
   offers: [
     { "@type": "Offer", price: "0", priceCurrency: "USD", name: "Free Trial" },
@@ -149,8 +149,8 @@ const jsonLdOrg = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "NukeMyMac",
-  url: "https://nukemymac.com",
-  logo: "https://nukemymac.com/app-icon.png",
+  url: "https://nukemymac-website.vercel.app",
+  logo: "https://nukemymac-website.vercel.app/app-icon.png",
   sameAs: [
     "https://github.com/bumahkib7/NukeMyMac",
   ],
@@ -160,10 +160,10 @@ const jsonLdWebsite = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "NukeMyMac",
-  url: "https://nukemymac.com",
+  url: "https://nukemymac-website.vercel.app",
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://nukemymac.com/?q={search_term_string}",
+    target: "https://nukemymac-website.vercel.app/?q={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 };
